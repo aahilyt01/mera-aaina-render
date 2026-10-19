@@ -1,0 +1,46 @@
+name: Render Mera Aaina Video
+
+on:
+  workflow_dispatch:
+    inputs:
+      episode:
+        description: 'Episode ID (e.g. KG-008)'
+        required: true
+        type: string
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout render repo
+        uses: actions/checkout@v4
+
+      - name: Checkout private content
+        uses: actions/checkout@v4
+        with:
+          repository: aahilyt01/mera-aaina-content
+          token: ${{ secrets.GH_PAT }}
+          path: content
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          pip install -q moviepy pillow numpy
+
+      - name: Render episode
+        run: |
+          python3 render.py --episode ${{ inputs.episode }} --content-dir content
+
+      - name: Upload video
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.episode }}-video
+          path: output/*.mp4
+          retention-days: 7
