@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: aahilyt01/mera-aaina-content
-          token: ${{ secrets.GH_PAT }}
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
           path: content
 
       - name: Setup Python
